@@ -123,7 +123,7 @@ App = {
         // retrieve the details of the article 
         var _article_name = $('#article_name').val(); 
         var _description = $('#article_description').val(); 
-        var _price = web3.toWei(parseFloat($('#article_price').val() || 0), "ether"); 
+        var _price = web3.utils.toWei(parseFloat($('#article_price').val() || 0), "ether"); 
 
         if ((_article_name.trim() == '') || (_price == 0)) {
           // nothing to sell
@@ -175,7 +175,7 @@ App = {
         App.contracts.ChainList.deployed().then(function(instance) {
           return instance.buyArticle(_articleId, {
             from: App.account, 
-            value: web3.toWei(_price, "ether"), 
+            value: web3.utils.toWei(_price, "ether"), 
             gas: 500000
           }); 
         }).catch(function(error) {

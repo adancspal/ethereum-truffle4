@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.5.8;
 
 // import 
 import "./Ownable.sol"; 
@@ -7,7 +7,7 @@ contract ChainList is Ownable {
 	// custom types
 	struct Article {
 		uint id; 
-		address seller; 
+		address payable seller; 
 		address buyer; 
 		string name; 
 		string description; 
@@ -62,20 +62,20 @@ contract ChainList is Ownable {
 	}
 
 	// sell an article
-	function sellArticle(string _name, string _description, uint256 _price) public {
+	function sellArticle(string memory _name, string memory _description, uint256 _price) public {
 		// increment the article counter
 		articleCounter++; 
 
 		articles[articleCounter] = Article(
 				articleCounter, // key in the mapping 
 				msg.sender, 
-				0x0, 
+				address(0), 
 				_name, 
 				_description, 
 				_price
 			); 
 
-		LogSellArticle(articleCounter, msg.sender, _name, _price); 
+		emit LogSellArticle(articleCounter, msg.sender, _name, _price); 
 	}
 
 	// get number of articles in the contract
@@ -84,7 +84,7 @@ contract ChainList is Ownable {
 	}
 
 	// get articles ids for sale
-	function getArticlesForSale() public view returns (uint[]) {
+	function getArticlesForSale() public view returns (uint[] memory) {
 		// prepare output array
 		uint[] memory articleIds = new uint[](articleCounter); 
 
@@ -93,7 +93,7 @@ contract ChainList is Ownable {
 		// iterate over articles
 		for(uint i = 1; i <= articleCounter; i++) {
 			// keep the id if still for sale
-			if (articles[i].buyer == 0x0) {
+			if (articles[i].buyer == address(0)) {
 				articleIds[numberOfArticlesForSale] = articles[i].id; 
 				numberOfArticlesForSale++; 
 			}
@@ -119,7 +119,7 @@ contract ChainList is Ownable {
 		Article storage article = articles[_id]; 
 
 		// we check that the article has not been sold yet
-		require(article.buyer == 0x0); 
+		require(article.buyer == address(0)); 
 
 		// we don´t allow the seller to buy its own article
 		require(msg.sender != article.seller); 
@@ -134,6 +134,6 @@ contract ChainList is Ownable {
 		article.seller.transfer(msg.value); 
 
 		// trigger the event
-		LogBuyArticle(_id, article.seller, article.buyer, article.name, article.price); 
+		emit LogBuyArticle(_id, article.seller, article.buyer, article.name, article.price); 
 	}
 }

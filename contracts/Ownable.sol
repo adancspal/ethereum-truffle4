@@ -1,8 +1,8 @@
-pragma solidity ^0.4.18; 
+pragma solidity ^0.5.8; 
 
 contract Ownable {
 	// state variables
-	address owner; 
+	address payable owner; 
 
 	// modifiers
 	modifier onlyOwner() {
@@ -11,7 +11,7 @@ contract Ownable {
 	}
 
 	// constructor
-	function Ownable() public {
+	constructor () public {
 		owner = msg.sender; 
 	}
 }

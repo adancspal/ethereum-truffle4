@@ -8,7 +8,7 @@ contract("ChainList", function(accounts) {
 	var buyer = accounts[2]; 
 	var articleName = "article 1"; 
 	var articleDescription = "Description for article 1"; 
-	var articlePrice = 10; 
+	var articlePrice = "10"; 
 
 	// no article for sale yet
 	it("should throw an exception if you try to buy an article when there is no article for sale yet", function() {
@@ -16,7 +16,7 @@ contract("ChainList", function(accounts) {
 			chainListInstance = instance; 
 			return chainListInstance.buyArticle(1, {
 				from: buyer, 
-				value: web3.toWei(articlePrice, "ether")
+				value: web3.utils.toWei(articlePrice, "ether")
 			}); 
 		}).then(assert.fail)
 		.catch(function(error) {
@@ -32,13 +32,14 @@ contract("ChainList", function(accounts) {
 	it("should throw an exception if you try to buy an article that does not exist", function() {
 		return ChainList.deployed().then(function(instance) {
 			chainListInstance = instance; 
-			return chainListInstance.sellArticle(articleName, articleDescription, web3.toWei(articlePrice, "ether"), {
+			return chainListInstance.sellArticle(articleName, articleDescription, web3.utils.toWei(articlePrice, "ether"), {
 				from: seller
 			}); 
 		}).then(function(receipt) {
+			console.log("PASO por el RECEIPT"); 
 			return chainListInstance.buyArticle(2, {
 				from: seller, 
-				value: web3.toWei(articlePrice, "ether")
+				value: web3.utils.toWei(articlePrice, "ether")
 			}); 
 		}).catch(function(error) {
 			assert(true); 
@@ -50,7 +51,7 @@ contract("ChainList", function(accounts) {
 			assert.equal(data[2], 0x0, "buyer must be empty"); 
 			assert.equal(data[3], articleName, "article name must be empty"); 
 			assert.equal(data[4], articleDescription, "article description must be empty"); 
-			assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), "article price must be " + articlePrice);
+			assert.equal(data[5], web3.utils.toWei(articlePrice, "ether"), "article price must be " + articlePrice);
 		})
 	}); 
 
@@ -60,7 +61,7 @@ contract("ChainList", function(accounts) {
 			chainListInstance = instance; 
 			return chainListInstance.buyArticle(1, {
 				from: seller, 
-				value: web3.toWei(articlePrice, "ether")
+				value: web3.utils.toWei(articlePrice, "ether")
 			}); 
 		}).then(assert.fail).catch(function(error) {
 			assert(true); 
@@ -72,7 +73,7 @@ contract("ChainList", function(accounts) {
 			assert.equal(data[2], 0x0, "buyer must be empty"); 
 			assert.equal(data[3], articleName, "article name must be empty"); 
 			assert.equal(data[4], articleDescription, "article description must be empty"); 
-			assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), "article price must be " + articlePrice); 
+			assert.equal(data[5], web3.utils.toWei(articlePrice, "ether"), "article price must be " + articlePrice); 
 		}); 
 	}); 
 
@@ -81,7 +82,7 @@ contract("ChainList", function(accounts) {
 			chainListInstance = instance; 
 			return chainListInstance.buyArticle(1, {
 				from: buyer, 
-				value: web3.toWei(articlePrice +1, "ether")
+				value: web3.utils.toWei(articlePrice +1, "ether")
 			}); 
 		}).then(assert.fail).catch(function(error) {
 			assert(true); 
@@ -93,7 +94,7 @@ contract("ChainList", function(accounts) {
 			assert.equal(data[2], 0x0, "buyer must be empty"); 
 			assert.equal(data[3], articleName, "article name must be empty"); 
 			assert.equal(data[4], articleDescription, "article description must be empty"); 
-			assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), "article price must be " + articlePrice); 
+			assert.equal(data[5], web3.utils.toWei(articlePrice, "ether"), "article price must be " + articlePrice); 
 		}); 
 	}); 
 
@@ -103,12 +104,12 @@ contract("ChainList", function(accounts) {
 			chainListInstance = instance; 
 			return chainListInstance.buyArticle(1, {
 				from: buyer, 
-				value: web3.toWei(articlePrice, "ether")
+				value: web3.utils.toWei(articlePrice, "ether")
 			}); 
 		}).then(function() {
 			return chainListInstance.buyArticle(1, {
 				from: web3.eth.accounts[3], 
-				value: web3.toWei(articlePrice, "ether")
+				value: web3.utils.toWei(articlePrice, "ether")
 			});
 		}).then(assert.fail).catch(function(error) {
 			assert(true); 
@@ -120,7 +121,7 @@ contract("ChainList", function(accounts) {
 			assert.equal(data[2], buyer, "buyer must be the buyer"); 
 			assert.equal(data[3], articleName, "article name must be empty"); 
 			assert.equal(data[4], articleDescription, "article description must be empty"); 
-			assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), "article price must be " + articlePrice); 
+			assert.equal(data[5], web3.utils.toWei(articlePrice, "ether"), "article price must be " + articlePrice); 
 		}); 
 	}); 
 }); 

@@ -21,3 +21,7 @@ var sellEvent = app.LogSellArticle({}, {fromBlock: 0,toBlock: 'latest'}).watch(f
 // Only the latest event (the normal): 
 var sellEvent = app.LogSellArticle({}, {}).watch(function(error, event){console.log(event); })
 
+// Create genesis block corresponding to current version of geth
+puppeth
+
+

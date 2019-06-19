@@ -35,10 +35,11 @@ App = {
         web3.eth.getCoinbase(function(err, account) {
           if (err === null) {
             App.account = account; 
+            // App.account = "0xab18294765d1Db60204f2563BF4b3aeb998A2ea4"; 
             $('#account').text(account); 
             web3.eth.getBalance(account, function(err, balance) {
               if (err === null) {
-                $('#accountBalance').text(web3.fromWei(balance, "ether") + " ETH"); 
+                $('#accountBalance').text(web3.utils.fromWei(balance, "ether") + " ETH"); 
               }
             })
           }
@@ -94,9 +95,10 @@ App = {
         }); 
      }, 
      displayArticle: function(id, seller, name, description, price) {
+        
         var articlesRow = $('#articlesRow'); 
 
-        var etherPrice = web3.fromWei(price, "ether"); 
+        var etherPrice = web3.utils.fromWei(price, "ether"); 
 
         var articleTemplate = $('#articleTemplate'); 
         articleTemplate.find('.panel-title').text(name); 
@@ -106,7 +108,7 @@ App = {
         articleTemplate.find('.btn-buy').attr('data-value', etherPrice);
 
         // seller
-        if (seller == App.account) {
+        if (seller == web3.utils.toChecksumAddress(App.account)) { // Need to use the same checksum representation in order to compare
           articleTemplate.find('.article-seller').text('You'); 
           articleTemplate.find('.btn-buy').hide(); 
         } 
@@ -123,7 +125,7 @@ App = {
         // retrieve the details of the article 
         var _article_name = $('#article_name').val(); 
         var _description = $('#article_description').val(); 
-        var _price = web3.utils.toWei(parseFloat($('#article_price').val() || 0), "ether"); 
+        var _price = web3.utils.toWei(parseFloat($('#article_price').val() || 0).toString(), "ether"); 
 
         if ((_article_name.trim() == '') || (_price == 0)) {
           // nothing to sell
@@ -136,33 +138,35 @@ App = {
             gas: 500000 // Maximum amount of gas we are willing to pay
           }); 
         }).then(function(result) {
-          // Not needed now that we listen to events
-          // App.reloadArticles(); 
+          // Events not working at the moment, possibly because of TruffleContract with web3 1.0. Applying a workaround. 
+          setTimeout(function(){ App.reloadArticles(); }, 3000);
         }).catch(function(err) {
           console.error(err); 
         }); 
      },
      // listen to events triggered by the contract 
      listenToEvents: function() {
-        App.contracts.ChainList.deployed().then(function(instance) {
-            instance.LogSellArticle({}, {}).watch(function(error, event) {
-              if (!error) {
-                $("#events").append('<li class="list-group-item">' + event.args._name + ' is now for sale</li>'); 
-              } else {
-                console.error(error); 
-              }
-              App.reloadArticles(); 
-            }); 
+        // Events not working at the moment, possibly because of TruffleContract with web3 1.0. Applying a workaround. 
+        
+        // App.contracts.ChainList.deployed().then(function(instance) {
+        //     instance.events.LogSellArticle({}, (error, event) => { // instance.events is undefined. TruffleContract not implementing it? It's supposed to be there for web3 1.0. 
+        //       if (!error) {
+        //         $("#events").append('<li class="list-group-item">' + event.args._name + ' is now for sale</li>'); 
+        //       } else {
+        //         console.error(error); 
+        //       }
+        //       App.reloadArticles(); 
+        //     }); 
 
-            instance.LogBuyArticle({}, {}).watch(function(error, event) {
-              if (!error) {
-                $("#events").append('<li class="list-group-item">' + event.args._buyer + ' bought ' + event.args._name + '</li>'); 
-              } else {
-                console.error(error); 
-              }
-              App.reloadArticles(); 
-            }); 
-        }); 
+        //     instance.LogBuyArticle({}, {}).watch(function(error, event) {
+        //       if (!error) {
+        //         $("#events").append('<li class="list-group-item">' + event.args._buyer + ' bought ' + event.args._name + '</li>'); 
+        //       } else {
+        //         console.error(error); 
+        //       }
+        //       App.reloadArticles(); 
+        //     }); 
+        // }); 
      }, 
 
      buyArticle: function() {
@@ -175,12 +179,14 @@ App = {
         App.contracts.ChainList.deployed().then(function(instance) {
           return instance.buyArticle(_articleId, {
             from: App.account, 
-            value: web3.utils.toWei(_price, "ether"), 
+            value: web3.utils.toWei(_price.toString(), "ether"), 
             gas: 500000
           }); 
         }).catch(function(error) {
           console.error(error); 
-        })
+        }); 
+        // Events not working at the moment, possibly because of TruffleContract with web3 1.0. Applying a workaround. 
+        setTimeout(function(){ App.reloadArticles(); }, 3000);
      }
 };
 
